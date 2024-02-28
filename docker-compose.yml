@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./user-microservice:/var/www
+    depends_on:
+      - php
+    networks:
+      - laravel_network
+
+  php:
+    image: php:8.0-fpm
+    volumes:
+      - ./user-microservice:/var/www
+    networks:
+      - laravel_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+    depends_on:
+      - mysql
+    networks:
+      - laravel_network
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      DB_USERNAME: root
+      DB_DATABASE: microservice
+      DB_PORT: 3306
+      DB_PASSWORD: Anonymous?000
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - laravel_network
+
+networks:
+  laravel_network:
+    driver: bridge
